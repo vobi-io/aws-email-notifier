@@ -1,0 +1,120 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "MyMarket.ge search email notifier"
+
+Parameters:
+  VersionParameter:
+    Type: String
+    Default: 0.0.1
+    Description: Notifier version
+
+  SearchParameter:
+    Type: String
+    MinLength: 3
+    Description: Actual term to use when searching
+
+  KeywordsParameter:
+    Type: CommaDelimitedList
+    Description: Keywords to look for in description or in title to filter items
+
+  ScheduleParameter:
+    Type: String
+    MinLength: 1
+    Description: run schedule, cron or rate expression. e.g. https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
+
+  EmailParameter:
+    Type: String
+    AllowedPattern: "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}"
+    Description: Email to send results
+
+  MailgunApiKeyParameter:
+    Type: String
+    AllowedPattern: "key-[a-zA-Z0-9]*"
+    Description: Mailgun API key
+
+  MailgunDomainParameter:
+    Type: String
+    AllowedPattern: "^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\\.[a-zA-Z]{2,}$"
+    Description: Mailgun domain
+
+Resources:
+
+  NotifierLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName:
+        Fn::Join:
+        - ''
+        - - Ref: AWS::StackName
+          - "-notifier"
+      Handler: src/mymarket/index.handler
+      MemorySize: 128
+      Timeout: 300
+      Runtime: nodejs6.10
+      Role:
+        Fn::GetAtt:
+        - NotifierLambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket:
+          Fn::Join:
+          - ''
+          - - lambci-
+            - Ref: AWS::Region
+        S3Key:
+          Fn::Join:
+          - ''
+          - - fn/lambci-build-
+            - Ref: VersionParameter
+            - ".zip"
+
+  NotifierLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: WriteLogs
+        PolicyDocument:
+          Statement:
+            Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+              Fn::Join:
+              - ''
+              - - arn:aws:logs:*:*:log-group:/aws/lambda/
+                - Ref: AWS::StackName
+                - "-*"
+
+  NotifierEventsRuleSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      ScheduleExpression:
+        Ref: ScheduleParameter
+      State: ENABLED
+      Targets:
+      - Arn:
+          Fn::GetAtt:
+          - NotifierLambda
+          - Arn
+        Id: NotifierSchedule
+
+  NotifierLambdaPermissionEventsRuleSchedule:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt:
+        - NotifierLambda
+        - Arn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+        - NotifierEventsRuleSchedule
+        - Arn
