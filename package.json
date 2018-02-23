@@ -1,0 +1,30 @@
+{
+  "name": "aws-email-notifier",
+  "version": "0.0.1",
+  "description": "list of diff stacks to send notifications",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node -e \"var s=['../src', '../test'],d=['node_modules/app', 'node_modules/test'],fs=require('fs');s.forEach(function(_,i){fs.existsSync(d[i])||fs.symlinkSync(s[i],d[i],'dir')});\"",
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/_mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vobi-io/aws-email-notifier.git"
+  },
+  "keywords": [
+    "aws",
+    "email",
+    "notification"
+  ],
+  "author": "vobi.io",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vobi-io/aws-email-notifier/issues"
+  },
+  "homepage": "https://github.com/vobi-io/aws-email-notifier#readme",
+  "devDependencies": {
+    "chai": "4.1.2",
+    "eslint": "4.18.1",
+    "mocha": "5.0.1"
+  }
+}
