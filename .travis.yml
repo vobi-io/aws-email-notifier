@@ -4,4 +4,21 @@ sudo: false
 
 cache:
   directories:
-    - "node_modules"
+    - node_modules
+
+before_deploy:
+  - npm run build
+
+deploy:
+  provider: s3
+  access_key_id:
+    secure: RWSfI9BVX6okWm1aWRc0WJQ3peye+kXAxKmwF1eOwc3TYH2Qzt8xrsrFG8dlmg7EN5Do4pxMR4IC+Xej8qxoOigSvK2jpiYda/rFRYE+NGBmYrZ3frrwchPUCzv/t0d/paIIzwG2CSneqgRYHxHyV/X7l0encbOuDDYIKKUfjX06JaRtBhZsfVpp4R4wSvdlsBqSBlPU0gNZ+WKdDim62vj1jgdEReqacA+RcU7/ROfWQzON5X1QUTczYyZ/9FzWQ1nCuTdlVPe3EJyWwEyjK9xremOiC1igV6OQnVlmK216DANRfrSHs5Qtfc/r7KLMt1r6HGN0ayNywF87ox6XjVP+dGoU5DDlIZ4O/exDDjOJidp22n4zG5akTufFyPg0c2MONirZzjXTY4mfN/DLAQ1isLKJw1WKS+HSeICzYcNEcOhMJp7cn9kymGInObs0vf0aKwDxP3TNAlGKWv42m2YCsCoSvI3QMgxVxCY50/spT0XiMkhqCEgjihH4cBci0Fdf0WIt/2mq8Hhwb51oqg3uaTvpvqiAa2etGS2SDzqMuPJJy2mQyPinoZjljTjHLK0KOalZEW2luFvlKTkAWtfx9RtAAy942IQFtRDIXkZ0W9xJZ0ui0D5+Rhjh4VG1Z78pTrobIs3HxVSMPtJWm/NX8g1eaOBApGqPbCg9588=
+  secret_access_key:
+    secure: TefzUXBK+U3wvTjCRytV2EESWTbL9ILhWtfk7vT5jzoQvObFCT8La03DHZKaqpN3IqpRkTR5Kbr3OOAdM0ITqVCRQBWpVEod2W969McHv8VqRwZCl8ayIeCYRMV3vEGxbvgRnyI8GKZhidv9NHmq9Nsw1Zoa109IRo3//aADozeB5virzauMtkmuRI/EMkljNz0iDtyyNTfkvm46hUh0r64Tom9nSmjYpw0gS6FgfnQ/caLXSB3bxCnqDDf0fQ0NWbK4CE8vSO811MznKbsY6+VrrL6qblOdG7CJ4cp40z2ZfobAlLk7TgiR6ML0ojbd6Lp5MrS54f+l9EuJe7xvk+Hls9tpmGuNRPZSgKAJTVh3bbjA8/z6AYEL8ptlOczl7Q8lEOdxV42traDRHlgrGFZ2R3kF+A6zzlJNfsKJbiazkrgt/8xucYUZkTxkEuD4OvhwyFexZBZNQqh6MiVFi7DLROKLAzmN+RYoVXOuQHJ1Yy8r4uMW0Q63EJSBXVI38kDuyQclvkRh5ush5QQZwjJuZ+aE4FPbGBx34gB7IcHwsuXqWkXTWNxgBEKJHY68W48CqEBfrkdKEDIj7nnibYGPDj9qdSOKD0Sg8vaRwOTYkHiPxlVa1J+PUIa1eM7z4b5qOr7aJU67YQTPAMHA0NeAZJox6KP0qmAIo4WjRYw=
+  bucket: aws-email-notifier
+  skip_cleanup: true
+  acl: public_read
+  region: eu-west-1
+  local_dir: build
+  on:
+    branch: master
